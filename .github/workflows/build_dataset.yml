@@ -1,0 +1,30 @@
+name: Build Dataset
+
+on: workflow_dispatch
+
+jobs:
+  make:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: s-weigand/setup-conda@v1
+      - uses: conda --version
+      - run: |
+          conda create -n py27 python=2.7
+          conda activate py27
+      - run: |
+          cd preprocess
+          wget http://www.ark.cs.cmu.edu/personas/data/corenlp_plot_summaries.tar
+          wget http://www.ark.cs.cmu.edu/mheilman/questions/SupersenseTagger-10-01-12.tar.gz
+          wget http://www.ark.cs.cmu.edu/personas/data/MovieSummaries.tar.gz
+          tar -xf corenlp_plot_summaries.tar
+          tar -xf SupersenseTagger-10-01-12.tar.gz
+          tar -xf MovieSummaries.tar.gz
+      - run: |
+          ./pipeline.sh
+      - run: |
+          cd ..
+          cd ../java
+          ./run.sh ./output.dir ../preprocess/all.data
+
+
